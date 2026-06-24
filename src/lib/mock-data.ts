@@ -85,12 +85,20 @@ export const customers = [
   },
 ];
 
-export const dashboardStats = {
-  totalCents: 6_179_823_00,
-  paidCents: 5_704_926_00,
+const invoiceSummaryCents = {
+  paidCents: 5_704_927_00,
   draftCents: 347_920_00,
   issuedCents: 124_339_00,
   overdueCents: 2_637_00,
+};
+
+export const dashboardStats = {
+  totalCents:
+    invoiceSummaryCents.paidCents +
+    invoiceSummaryCents.draftCents +
+    invoiceSummaryCents.issuedCents +
+    invoiceSummaryCents.overdueCents,
+  ...invoiceSummaryCents,
   invoiceCount: 92,
   paidOnTimeRatio: 92,
 };
