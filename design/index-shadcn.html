@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="cs" class="">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fakturo — fakturace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   FAKTURO — shadcn/ui flavoured variant
+   Tokens follow the shadcn HSL convention (zinc neutral).
+============================================================ */
+:root{
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --background:0 0% 100%;
+  --foreground:240 10% 3.9%;
+  --card:0 0% 100%;
+  --card-foreground:240 10% 3.9%;
+  --popover:0 0% 100%;
+  --muted:240 4.8% 95.9%;
+  --muted-foreground:240 3.8% 46.1%;
+  --accent:240 4.8% 95.9%;
+  --accent-foreground:240 5.9% 10%;
+  --primary:240 5.9% 10%;
+  --primary-foreground:0 0% 98%;
+  --secondary:240 4.8% 95.9%;
+  --secondary-foreground:240 5.9% 10%;
+  --border:240 5.9% 90%;
+  --input:240 5.9% 90%;
+  --ring:240 5.9% 10%;
+  --radius:0.65rem;
+
+  /* semantic accents (used sparingly, shadcn-flavoured) */
+  --success:142 71% 45%;   --success-fg:142 64% 24%;   --success-bg:142 60% 95%;
+  --info:221 83% 53%;      --info-fg:221 70% 36%;      --info-bg:214 95% 96%;
+  --warning:38 92% 50%;    --warning-fg:32 70% 32%;    --warning-bg:43 96% 94%;
+  --destructive:0 72% 51%; --destructive-fg:0 70% 38%; --destructive-bg:0 86% 97%;
+
+  --shadow-sm:0 1px 2px 0 hsl(240 6% 10% / .05);
+  --shadow:0 1px 3px 0 hsl(240 6% 10% / .08),0 1px 2px -1px hsl(240 6% 10% / .08);
+  --shadow-md:0 4px 12px -2px hsl(240 6% 10% / .10),0 2px 6px -2px hsl(240 6% 10% / .06);
+  --shadow-lg:0 16px 40px -12px hsl(240 6% 10% / .22);
+  --sidebar-w:256px;
+}
+.dark{
+  --background:240 10% 3.9%;
+  --foreground:0 0% 98%;
+  --card:240 8% 6%;
+  --card-foreground:0 0% 98%;
+  --popover:240 10% 4.5%;
+  --muted:240 3.7% 13%;
+  --muted-foreground:240 5% 64.9%;
+  --accent:240 3.7% 15.9%;
+  --accent-foreground:0 0% 98%;
+  --primary:0 0% 98%;
+  --primary-foreground:240 5.9% 10%;
+  --secondary:240 3.7% 15.9%;
+  --secondary-foreground:0 0% 98%;
+  --border:240 3.7% 16%;
+  --input:240 3.7% 18%;
+  --ring:240 4.9% 83.9%;
+
+  --success:142 64% 50%;   --success-fg:142 64% 70%;   --success-bg:142 40% 12%;
+  --info:217 91% 65%;      --info-fg:213 93% 78%;      --info-bg:222 47% 16%;
+  --warning:43 96% 58%;    --warning-fg:43 96% 70%;    --warning-bg:34 60% 14%;
+  --destructive:0 72% 58%; --destructive-fg:0 90% 78%; --destructive-bg:0 50% 14%;
+
+  --shadow-sm:0 1px 2px 0 hsl(0 0% 0% / .4);
+  --shadow:0 1px 3px 0 hsl(0 0% 0% / .5);
+  --shadow-md:0 6px 18px -6px hsl(0 0% 0% / .55);
+  --shadow-lg:0 24px 60px -14px hsl(0 0% 0% / .7);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-sans);
+  color:hsl(var(--foreground));
+  background:hsl(var(--background));
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  font-size:14px;
+  line-height:1.5;
+  letter-spacing:-.006em;
+}
+::selection{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--font-mono);font-feature-settings:"tnum";letter-spacing:0}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-thumb{background:hsl(var(--border));border-radius:20px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:hsl(var(--muted-foreground)/.5);background-clip:content-box}
+
+/* ============================================================ LAYOUT */
+.app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;gap:2px;
+  padding:14px;
+  background:hsl(var(--card));
+  border-right:1px solid hsl(var(--border));
+  z-index:40;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 8px 14px;}
+.brand-mark{
+  width:32px;height:32px;border-radius:8px;flex:none;
+  background:hsl(var(--primary));color:hsl(var(--primary-foreground));
+  display:grid;place-items:center;
+}
+.brand-mark svg{width:18px;height:18px}
+.brand-name{font-weight:600;font-size:15px;letter-spacing:-.02em}
+.nav-label{font-size:11px;font-weight:500;letter-spacing:.02em;color:hsl(var(--muted-foreground));padding:14px 10px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:8px 10px;border-radius:calc(var(--radius) - 2px);
+  color:hsl(var(--muted-foreground));font-weight:500;font-size:13.5px;
+  position:relative;
+  transition:color .15s,background .15s;
+}
+.nav-item svg{width:17px;height:17px;flex:none}
+.nav-item:hover{color:hsl(var(--foreground));background:hsl(var(--accent))}
+.nav-item.active{color:hsl(var(--foreground));background:hsl(var(--accent));font-weight:600}
+.nav-item .badge{margin-left:auto;font-size:11px;font-weight:600;background:hsl(var(--secondary));color:hsl(var(--secondary-foreground));
+  padding:1px 8px;border-radius:20px;line-height:1.6;border:1px solid hsl(var(--border))}
+.sidebar-foot{margin-top:auto;border-top:1px solid hsl(var(--border));padding-top:10px;margin-top:auto}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px;border-radius:calc(var(--radius) - 2px);transition:background .15s;cursor:pointer}
+.user-card:hover{background:hsl(var(--accent))}
+.avatar{width:32px;height:32px;border-radius:8px;flex:none;display:grid;place-items:center;font-weight:600;font-size:12px;
+  background:hsl(var(--secondary));color:hsl(var(--secondary-foreground));border:1px solid hsl(var(--border))}
+.user-meta{min-width:0;flex:1}
+.user-meta b{font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-meta span{font-size:11.5px;color:hsl(var(--muted-foreground))}
+.user-card .chev{color:hsl(var(--muted-foreground))}
+.user-card .chev svg{width:15px;height:15px}
+
+/* ---- Main ---- */
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:12px;
+  padding:0 24px;height:60px;
+  background:hsl(var(--background)/.8);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid hsl(var(--border));
+}
+.search{flex:1;max-width:380px;position:relative}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:hsl(var(--muted-foreground));width:16px;height:16px;pointer-events:none}
+.search input{
+  width:100%;height:38px;padding:0 12px 0 36px;border-radius:var(--radius);
+  background:hsl(var(--background));border:1px solid hsl(var(--input));
+  font-size:13.5px;transition:border .15s,box-shadow .15s;
+}
+.search input::placeholder{color:hsl(var(--muted-foreground))}
+.search input:focus{outline:none;border-color:hsl(var(--ring));box-shadow:0 0 0 3px hsl(var(--ring)/.12)}
+.search .kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:hsl(var(--muted-foreground));
+  border:1px solid hsl(var(--border));border-radius:5px;padding:1px 6px;font-family:var(--font-mono);pointer-events:none}
+.topbar-spacer{flex:1}
+
+/* ---- buttons (shadcn) ---- */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;justify-content:center;
+  height:38px;padding:0 15px;border-radius:var(--radius);font-weight:500;font-size:13.5px;
+  transition:background .15s,color .15s,border-color .15s,box-shadow .15s,opacity .15s;white-space:nowrap;
+  border:1px solid transparent;
+}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 2px hsl(var(--background)),0 0 0 4px hsl(var(--ring))}
+.btn svg{width:16px;height:16px}
+.btn-sm{height:34px;padding:0 12px;font-size:13px}
+.btn-primary{background:hsl(var(--primary));color:hsl(var(--primary-foreground))}
+.btn-primary:hover{background:hsl(var(--primary)/.9)}
+.btn-secondary{background:hsl(var(--secondary));color:hsl(var(--secondary-foreground))}
+.btn-secondary:hover{background:hsl(var(--secondary)/.7)}
+.btn-outline{background:hsl(var(--background));border-color:hsl(var(--border));color:hsl(var(--foreground))}
+.btn-outline:hover{background:hsl(var(--accent))}
+.btn-ghost{background:transparent;color:hsl(var(--foreground))}
+.btn-ghost:hover{background:hsl(var(--accent))}
+.icon-btn{
+  width:38px;height:38px;border-radius:var(--radius);display:grid;place-items:center;
+  color:hsl(var(--muted-foreground));border:1px solid hsl(var(--border));background:hsl(var(--background));
+  transition:background .15s,color .15s;position:relative;
+}
+.icon-btn:hover{color:hsl(var(--foreground));background:hsl(var(--accent))}
+.icon-btn svg{width:17px;height:17px}
+.icon-btn .dot{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:hsl(var(--destructive));border:2px solid hsl(var(--background))}
+
+.content{padding:24px;max-width:1320px;width:100%;margin:0 auto}
+.view{display:none}
+.view.active{display:block;animation:fade .25s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* page head */
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.page-title{font-size:24px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.page-sub{color:hsl(var(--muted-foreground));margin-top:5px;font-size:13.5px}
+.crumb{display:inline-flex;align-items:center;gap:7px;color:hsl(var(--muted-foreground));font-weight:500;font-size:13px;margin-bottom:14px;
+  transition:color .15s}
+.crumb:hover{color:hsl(var(--foreground))}
+.crumb svg{width:15px;height:15px}
+
+/* toolbar */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.chip-select{
+  display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:var(--radius);
+  background:hsl(var(--background));border:1px solid hsl(var(--border));font-weight:500;font-size:13px;
+  transition:background .15s;color:hsl(var(--foreground))
+}
+.chip-select:hover{background:hsl(var(--accent))}
+.chip-select .lbl{color:hsl(var(--muted-foreground))}
+.chip-select svg{width:14px;height:14px;color:hsl(var(--muted-foreground))}
+
+/* ============================================================ STAT CARDS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{
+  background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);
+  padding:18px;position:relative;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .2s,box-shadow .2s;
+}
+.stat:hover{box-shadow:var(--shadow-md)}
+.stat .stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat .stat-label{font-size:13px;font-weight:500;color:hsl(var(--muted-foreground))}
+.stat .stat-ic{width:18px;height:18px;color:hsl(var(--muted-foreground))}
+.stat .amount{font-size:24px;font-weight:600;letter-spacing:-.02em;font-family:var(--font-mono);font-feature-settings:"tnum"}
+.stat .amount .cur{font-size:14px;color:hsl(var(--muted-foreground));font-weight:500;margin-left:4px;font-family:var(--font-sans)}
+.stat .meta{font-size:12px;color:hsl(var(--muted-foreground));margin-top:7px;display:flex;align-items:center;gap:7px}
+.stat .delta{display:inline-flex;align-items:center;gap:3px;font-weight:600;font-size:11.5px;padding:1px 6px;border-radius:6px}
+.delta-up{background:hsl(var(--success-bg));color:hsl(var(--success-fg))}
+.delta-down{background:hsl(var(--destructive-bg));color:hsl(var(--destructive-fg))}
+.delta svg{width:12px;height:12px}
+
+/* hero summary card */
+.summary{
+  display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;
+  background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);
+  padding:20px 22px;margin-bottom:18px;box-shadow:var(--shadow-sm);
+}
+.summary .s-label{font-size:13px;color:hsl(var(--muted-foreground));font-weight:500}
+.summary .s-big{font-size:34px;font-weight:600;letter-spacing:-.025em;margin-top:4px;font-family:var(--font-mono);font-feature-settings:"tnum"}
+.summary .s-big .cur{font-size:18px;color:hsl(var(--muted-foreground));font-family:var(--font-sans);margin-left:6px}
+.summary .s-sub{font-size:12.5px;color:hsl(var(--muted-foreground));margin-top:8px}
+.summary .legend{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+.summary .lg{display:flex;align-items:center;gap:7px;font-size:12px;color:hsl(var(--muted-foreground))}
+.summary .lg .d{width:9px;height:9px;border-radius:3px}
+.summary .lg b{color:hsl(var(--foreground));font-weight:600;font-family:var(--font-mono);font-feature-settings:"tnum"}
+.donut{position:relative;width:118px;height:118px;flex:none}
+.donut svg{transform:rotate(-90deg);width:118px;height:118px}
+.donut .center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.donut .center b{font-size:22px;font-weight:600;font-family:var(--font-mono)}
+.donut .center small{font-size:10px;color:hsl(var(--muted-foreground));display:block;margin-top:1px}
+
+/* ============================================================ TABLE / CARD */
+.panel{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid hsl(var(--border));flex-wrap:wrap}
+.panel-head h3{font-size:15px;font-weight:600}
+.bulk-actions{display:flex;align-items:center;gap:2px}
+.bulk-btn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px;border-radius:calc(var(--radius) - 2px);color:hsl(var(--muted-foreground));font-weight:500;font-size:13px;transition:background .15s,color .15s}
+.bulk-btn svg{width:15px;height:15px}
+.bulk-btn:hover{color:hsl(var(--foreground));background:hsl(var(--accent))}
+.seg{display:inline-flex;background:hsl(var(--muted));border-radius:var(--radius);padding:3px;gap:2px;margin-left:auto}
+.seg button{height:30px;padding:0 12px;border-radius:calc(var(--radius) - 3px);font-weight:500;font-size:12.5px;color:hsl(var(--muted-foreground));transition:color .15s,background .15s,box-shadow .15s}
+.seg button.active{background:hsl(var(--background));color:hsl(var(--foreground));box-shadow:var(--shadow-sm);font-weight:600}
+
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;font-size:12px;font-weight:500;
+  color:hsl(var(--muted-foreground));padding:11px 16px;border-bottom:1px solid hsl(var(--border));
+  height:42px;
+}
+thead th.num{text-align:right}
+tbody td{padding:13px 16px;border-bottom:1px solid hsl(var(--border));vertical-align:middle;font-size:13.5px}
+tbody tr{transition:background .12s;cursor:pointer}
+tbody tr:hover{background:hsl(var(--muted)/.5)}
+tbody tr:last-child td{border-bottom:none}
+.cb{width:18px;height:18px;border-radius:5px;border:1px solid hsl(var(--border));background:hsl(var(--background));
+  display:grid;place-items:center;transition:all .15s;flex:none}
+.cb svg{width:12px;height:12px;color:hsl(var(--primary-foreground));opacity:0;transition:opacity .12s}
+.cb.on{background:hsl(var(--primary));border-color:hsl(var(--primary))}
+.cb.on svg{opacity:1}
+.inv-num{font-weight:600;color:hsl(var(--foreground));display:inline-flex;align-items:center;gap:9px;font-family:var(--font-mono);font-size:13px}
+.inv-num .doc{width:30px;height:30px;border-radius:7px;background:hsl(var(--muted));display:grid;place-items:center;flex:none}
+.inv-num .doc svg{width:15px;height:15px;color:hsl(var(--muted-foreground))}
+.inv-num:hover{text-decoration:underline;text-underline-offset:3px}
+.client{font-weight:500;color:hsl(var(--foreground))}
+.muted{color:hsl(var(--muted-foreground))}
+.amt{font-weight:600;text-align:right;font-family:var(--font-mono);font-feature-settings:"tnum"}
+
+/* badges (shadcn) */
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:500;font-size:12px;padding:2px 9px;border-radius:20px;border:1px solid transparent}
+.status .ic{width:6px;height:6px;border-radius:50%}
+.s-paid{background:hsl(var(--success-bg));color:hsl(var(--success-fg));border-color:hsl(var(--success)/.25)} .s-paid .ic{background:hsl(var(--success))}
+.s-draft{background:hsl(var(--info-bg));color:hsl(var(--info-fg));border-color:hsl(var(--info)/.25)} .s-draft .ic{background:hsl(var(--info))}
+.s-unpaid{background:hsl(var(--warning-bg));color:hsl(var(--warning-fg));border-color:hsl(var(--warning)/.3)} .s-unpaid .ic{background:hsl(var(--warning))}
+.s-over{background:hsl(var(--destructive-bg));color:hsl(var(--destructive-fg));border-color:hsl(var(--destructive)/.3)} .s-over .ic{background:hsl(var(--destructive))}
+.row-actions{display:flex;align-items:center;gap:1px;justify-content:flex-end;opacity:0;transition:opacity .15s}
+tbody tr:hover .row-actions{opacity:1}
+.ra{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:hsl(var(--muted-foreground));transition:background .12s,color .12s}
+.ra svg{width:15px;height:15px}
+.ra:hover{background:hsl(var(--accent));color:hsl(var(--foreground))}
+.ra.danger:hover{color:hsl(var(--destructive))}
+
+/* ============================================================ EDITOR */
+.editor{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+.editor-main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.card{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.card-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid hsl(var(--border))}
+.card-ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;flex:none;background:hsl(var(--muted));color:hsl(var(--foreground))}
+.card-ic svg{width:18px;height:18px}
+.card-head h3{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.card-head p{font-size:12.5px;color:hsl(var(--muted-foreground));margin-top:1px}
+.card-head .head-link{margin-left:auto;color:hsl(var(--foreground));font-weight:500;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.card-head .head-link svg{width:15px;height:15px}
+.card-head .head-link:hover{text-decoration:underline;text-underline-offset:3px}
+.card-body{padding:18px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{font-size:13px;font-weight:500;color:hsl(var(--foreground));display:flex;align-items:center;gap:6px}
+.field .hint{font-size:12px;color:hsl(var(--muted-foreground));font-weight:400}
+.field .hint a{color:hsl(var(--foreground));font-weight:500;text-decoration:underline;text-underline-offset:2px}
+.inp{
+  width:100%;height:38px;padding:0 12px;border-radius:var(--radius);background:hsl(var(--background));
+  border:1px solid hsl(var(--input));transition:border .15s,box-shadow .15s;font-weight:450;font-size:13.5px;
+}
+textarea.inp{height:auto;padding:10px 12px}
+.inp::placeholder{color:hsl(var(--muted-foreground));font-weight:400}
+.inp:hover{border-color:hsl(var(--border))}
+.inp:focus{outline:none;border-color:hsl(var(--ring));box-shadow:0 0 0 3px hsl(var(--ring)/.12)}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:34px}
+.inp-icon{position:relative}
+.inp-icon svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:hsl(var(--muted-foreground));pointer-events:none}
+.inp-icon .inp{padding-left:36px}
+.note{display:flex;gap:9px;padding:11px 13px;border-radius:var(--radius);background:hsl(var(--muted)/.6);color:hsl(var(--muted-foreground));
+  font-size:12.5px;font-weight:450;margin-top:14px;align-items:flex-start;border:1px solid hsl(var(--border))}
+.note svg{width:16px;height:16px;flex:none;margin-top:1px}
+.note b{color:hsl(var(--foreground));font-family:var(--font-mono);font-size:12px}
+
+/* collapsible */
+.collapse-row{display:flex;align-items:center;gap:12px;padding:16px 18px;cursor:pointer;transition:background .15s}
+.collapse-row:hover{background:hsl(var(--muted)/.4)}
+.collapse-row .chev{margin-left:auto;color:hsl(var(--muted-foreground));transition:transform .25s}
+.collapse-row .chev svg{width:18px;height:18px}
+
+/* info blocks */
+.info-block{display:flex;gap:13px;padding:16px 18px;align-items:flex-start}
+.info-block .body{flex:1;min-width:0}
+.info-block .body .eyebrow{font-size:11px;font-weight:500;letter-spacing:.02em;color:hsl(var(--muted-foreground))}
+.info-block .body .name{font-weight:600;font-size:14px;margin-top:4px}
+.info-block .body .lines{color:hsl(var(--muted-foreground));font-size:13px;margin-top:5px;line-height:1.6}
+.info-block .body .lines a{color:hsl(var(--foreground));font-weight:500;text-decoration:underline;text-underline-offset:2px}
+.info-block .edit{color:hsl(var(--foreground));font-weight:500;font-size:13px;white-space:nowrap;border:1px solid hsl(var(--border));padding:6px 11px;border-radius:var(--radius);transition:background .15s}
+.info-block .edit:hover{background:hsl(var(--accent))}
+.client-search{display:flex;gap:9px;align-items:center;flex:1}
+.client-search .inp{flex:1}
+.magic{width:38px;height:38px;border-radius:var(--radius);flex:none;display:grid;place-items:center;
+  background:hsl(var(--secondary));color:hsl(var(--secondary-foreground));border:1px solid hsl(var(--border));transition:background .15s}
+.magic:hover{background:hsl(var(--accent))}
+.magic svg{width:18px;height:18px}
+
+/* line items */
+.items-head{display:grid;grid-template-columns:130px 88px 1fr 130px 130px 40px;gap:10px;
+  padding:0 2px 8px;font-size:11.5px;font-weight:500;color:hsl(var(--muted-foreground))}
+.items-head .r{text-align:right}
+.line-item{display:grid;grid-template-columns:130px 88px 1fr 130px 130px 40px;gap:10px;align-items:center;
+  padding:6px 2px}
+.qty-stepper{display:flex;align-items:center;height:38px;background:hsl(var(--background));border-radius:var(--radius);border:1px solid hsl(var(--input));transition:border .15s,box-shadow .15s;overflow:hidden}
+.qty-stepper:focus-within{border-color:hsl(var(--ring));box-shadow:0 0 0 3px hsl(var(--ring)/.12)}
+.qty-stepper button{width:34px;height:100%;display:grid;place-items:center;color:hsl(var(--muted-foreground));transition:background .12s,color .12s;font-size:16px}
+.qty-stepper button:hover{color:hsl(var(--foreground));background:hsl(var(--accent))}
+.qty-stepper input{width:38px;text-align:center;background:none;border:none;font-weight:600;padding:0;font-family:var(--font-mono)}
+.qty-stepper input:focus{outline:none}
+.li-total{text-align:right;font-weight:600;padding-right:4px;font-family:var(--font-mono);font-feature-settings:"tnum"}
+.li-del{width:34px;height:34px;border-radius:7px;display:grid;place-items:center;color:hsl(var(--muted-foreground));transition:background .12s,color .12s}
+.li-del:hover{color:hsl(var(--destructive));background:hsl(var(--destructive-bg))}
+.li-del svg{width:16px;height:16px}
+.add-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed hsl(var(--border))}
+.add-link{display:inline-flex;align-items:center;gap:7px;font-weight:500;font-size:13px;color:hsl(var(--foreground));
+  height:34px;padding:0 12px;border-radius:var(--radius);border:1px solid hsl(var(--border));transition:background .15s}
+.add-link svg{width:15px;height:15px}
+.add-link:hover{background:hsl(var(--accent))}
+.add-link.subtle{color:hsl(var(--muted-foreground));border-color:transparent}
+.add-link.subtle:hover{color:hsl(var(--foreground));background:hsl(var(--accent))}
+
+/* totals */
+.totals{margin-top:16px;padding:16px;border-radius:var(--radius);background:hsl(var(--muted)/.5);border:1px solid hsl(var(--border))}
+.totals .row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;color:hsl(var(--muted-foreground));font-weight:450;font-size:13.5px}
+.totals .row.grand{margin-top:8px;padding-top:13px;border-top:1px solid hsl(var(--border));color:hsl(var(--foreground))}
+.totals .row.grand .lbl{font-size:15px;font-weight:600}
+.totals .row.grand .val{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.totals .val{font-family:var(--font-mono);font-feature-settings:"tnum";font-weight:500;color:hsl(var(--foreground))}
+
+.switch-row{display:flex;align-items:center;gap:12px;padding:16px 18px;border-top:1px solid hsl(var(--border))}
+.switch{width:42px;height:24px;border-radius:20px;background:hsl(var(--input));position:relative;transition:background .2s;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:hsl(var(--background));
+  box-shadow:var(--shadow-sm);transition:transform .2s}
+.switch.on{background:hsl(var(--primary))}
+.switch.on::after{transform:translateX(18px)}
+.switch-row .txt b{font-size:13.5px;font-weight:600}
+.switch-row .txt span{font-size:12.5px;color:hsl(var(--muted-foreground));display:block;margin-top:1px}
+
+/* aside */
+.aside{position:sticky;top:80px;display:flex;flex-direction:column;gap:16px}
+.preview-card{background:hsl(var(--card));border:1px solid hsl(var(--border));border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.preview-doc{padding:18px}
+.preview-doc .pd-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.preview-doc .pd-logo{width:38px;height:38px;border-radius:8px;background:hsl(var(--primary));display:grid;place-items:center;color:hsl(var(--primary-foreground))}
+.preview-doc .pd-logo svg{width:20px;height:20px}
+.preview-doc .pd-tag{font-size:11px;font-weight:500;color:hsl(var(--muted-foreground));text-align:right}
+.preview-doc .pd-tag b{display:block;font-size:14px;color:hsl(var(--foreground));margin-top:2px;font-family:var(--font-mono)}
+.preview-doc .pd-row{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;color:hsl(var(--muted-foreground))}
+.preview-doc .pd-row b{color:hsl(var(--foreground));font-weight:500}
+.preview-doc .pd-line{height:1px;background:hsl(var(--border));margin:11px 0}
+.preview-doc .pd-grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:5px}
+.preview-doc .pd-grand .g{font-size:20px;font-weight:600;color:hsl(var(--foreground));font-family:var(--font-mono);font-feature-settings:"tnum"}
+.score{padding:16px 18px;border-top:1px solid hsl(var(--border))}
+.score .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;font-weight:600}
+.score .top span:last-child{color:hsl(var(--success-fg));font-family:var(--font-mono)}
+.score .bar{height:6px;border-radius:10px;background:hsl(var(--muted));overflow:hidden}
+.score .bar span{display:block;height:100%;border-radius:10px;background:hsl(var(--success));width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.score .items{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.score .it{display:flex;align-items:center;gap:9px;font-size:12.5px;color:hsl(var(--foreground))}
+.score .it .tick{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;flex:none;background:hsl(var(--success-bg));color:hsl(var(--success-fg))}
+.score .it .tick svg{width:11px;height:11px}
+.score .it.todo .tick{background:hsl(var(--muted));color:hsl(var(--muted-foreground))}
+.score .it.todo{color:hsl(var(--muted-foreground))}
+
+/* sticky action bar */
+.action-bar{
+  position:sticky;bottom:0;z-index:20;margin:18px -24px -24px;padding:14px 24px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:hsl(var(--background)/.85);backdrop-filter:blur(10px);
+  border-top:1px solid hsl(var(--border));
+}
+.action-bar .spacer{flex:1}
+.action-bar .total-inline{display:flex;flex-direction:column;margin-right:6px}
+.action-bar .total-inline span{font-size:11.5px;color:hsl(var(--muted-foreground))}
+.action-bar .total-inline b{font-size:17px;font-weight:600;font-family:var(--font-mono);font-feature-settings:"tnum"}
+
+/* toast */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:90;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.toast{display:flex;align-items:center;gap:11px;padding:13px 16px;border-radius:var(--radius);background:hsl(var(--card));color:hsl(var(--foreground));
+  font-weight:500;font-size:13.5px;box-shadow:var(--shadow-lg);border:1px solid hsl(var(--border));
+  animation:toastIn .3s cubic-bezier(.22,1,.36,1);max-width:360px}
+.toast.out{animation:toastOut .25s ease forwards}
+.toast .ti{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;background:hsl(var(--success-bg));color:hsl(var(--success-fg))}
+.toast .ti svg{width:14px;height:14px}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(14px)}}
+
+.flash{animation:flash .5s ease}
+@keyframes flash{0%{color:hsl(var(--info))}100%{color:inherit}}
+
+/* responsive */
+@media(max-width:1100px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .editor{grid-template-columns:1fr}
+  .aside{position:static}
+}
+@media(max-width:820px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:-280px;transition:left .25s;box-shadow:var(--shadow-lg)}
+  .sidebar.open{left:0}
+  .content{padding:18px 14px}
+  .topbar{padding:0 14px}
+  .stats{grid-template-columns:1fr}
+  .summary{grid-template-columns:1fr;text-align:center}
+  .donut{margin:0 auto}
+  .grid-2{grid-template-columns:1fr}
+  .items-head{display:none}
+  .line-item{grid-template-columns:1fr 1fr;gap:10px;padding:14px;border:1px solid hsl(var(--border));border-radius:var(--radius);margin-bottom:10px}
+  .action-bar{margin:18px -14px -18px;padding:12px 14px}
+  .menu-toggle{display:grid!important}
+}
+.menu-toggle{display:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============================= SIDEBAR ============================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+      </div>
+      <div class="brand-name">Fakturo</div>
+    </div>
+
+    <div class="nav-label">Hlavní</div>
+    <a class="nav-item" data-go="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      Přehled
+    </a>
+    <a class="nav-item active" data-go="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+      Faktury <span class="badge">92</span>
+    </a>
+    <a class="nav-item" data-go="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Kontakty
+    </a>
+    <a class="nav-item" data-go="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exporty
+    </a>
+    <a class="nav-item" data-go="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Výdaje
+    </a>
+
+    <div class="nav-label">Účet</div>
+    <a class="nav-item" data-go="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Můj účet
+    </a>
+
+    <div class="sidebar-foot">
+      <div class="user-card">
+        <div class="avatar">MZ</div>
+        <div class="user-meta">
+          <b>Maksim Zaytsev</b>
+          <span>IČO 04962311</span>
+        </div>
+        <div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"/><polyline points="6 21 12 15 18 21" opacity="0"/></svg></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================= MAIN ============================= -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Hledat fakturu, kontakt, částku…" />
+        <span class="kbd">⌘K</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="icon-btn" id="themeBtn" aria-label="Přepnout motiv" title="Přepnout motiv">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Oznámení"><span class="dot"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="btn btn-primary" data-go="editor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Vystavit fakturu
+      </button>
+    </header>
+
+    <div class="content">
+
+      <!-- ====================== DASHBOARD VIEW ====================== -->
+      <section class="view active" id="view-dashboard">
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">Faktury</h1>
+            <p class="page-sub">Přehled vašich dokladů za rok 2026.</p>
+          </div>
+          <button class="btn btn-primary" data-go="editor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Vystavit fakturu
+          </button>
+        </div>
+
+        <!-- summary -->
+        <div class="summary">
+          <div>
+            <div class="s-label">Celkem vyfakturováno</div>
+            <div class="s-big"><span class="count-up" data-to="6179823">0</span><span class="cur">Kč</span></div>
+            <div class="s-sub">92 faktur · 92 % uhrazeno včas</div>
+            <div class="legend">
+              <span class="lg"><span class="d" style="background:hsl(var(--success))"></span>Zaplaceno <b>5 704 926</b></span>
+              <span class="lg"><span class="d" style="background:hsl(var(--info))"></span>Návrh <b>347 920</b></span>
+              <span class="lg"><span class="d" style="background:hsl(var(--warning))"></span>Nezaplaceno <b>124 339</b></span>
+              <span class="lg"><span class="d" style="background:hsl(var(--destructive))"></span>Po splatnosti <b>2 637</b></span>
+            </div>
+          </div>
+          <div class="donut">
+            <svg width="118" height="118" viewBox="0 0 118 118">
+              <circle cx="59" cy="59" r="50" fill="none" stroke="hsl(var(--muted))" stroke-width="12"/>
+              <circle id="donutSeg" cx="59" cy="59" r="50" fill="none" stroke="hsl(var(--success))" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="314.2" stroke-dashoffset="314.2"/>
+            </svg>
+            <div class="center"><b>92%</b><small>uhrazeno</small></div>
+          </div>
+        </div>
+
+        <!-- stat cards -->
+        <div class="stats" id="stats">
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">Zaplaceno</span>
+              <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="amount"><span class="count-up" data-to="5704926">0</span><span class="cur">Kč</span></div>
+            <div class="meta"><span class="delta delta-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 15 12 9 18 15"/></svg>12 %</span>81 faktur</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">Návrh</span>
+              <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div class="amount"><span class="count-up" data-to="347920">0</span><span class="cur">Kč</span></div>
+            <div class="meta">8 faktur čeká na vystavení</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">Nezaplaceno</span>
+              <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="amount"><span class="count-up" data-to="124339">0</span><span class="cur">Kč</span></div>
+            <div class="meta">1 faktura do splatnosti</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">Po splatnosti</span>
+              <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="amount"><span class="count-up" data-to="2637">0</span><span class="cur">Kč</span></div>
+            <div class="meta"><span class="delta delta-down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>2 ks</span>vyžaduje pozornost</div>
+          </div>
+        </div>
+
+        <!-- toolbar -->
+        <div class="toolbar">
+          <button class="chip-select"><span class="lbl">Období</span> Celý rok
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <button class="chip-select"><span class="lbl">Odběratel</span> Všichni
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div class="topbar-spacer"></div>
+          <button class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Stáhnout
+          </button>
+          <button class="btn btn-outline btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filtry
+          </button>
+        </div>
+
+        <!-- table -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="bulk-actions">
+              <button class="bulk-btn" id="selectAll">
+                <span class="cb" id="cbAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                Vybrat vše
+              </button>
+              <button class="bulk-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Stáhnout</button>
+              <button class="bulk-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Označit jako</button>
+              <button class="bulk-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Smazat</button>
+            </div>
+            <div class="seg" id="statusSeg">
+              <button class="active" data-filter="all">Vše</button>
+              <button data-filter="paid">Zaplaceno</button>
+              <button data-filter="unpaid">Nezaplaceno</button>
+              <button data-filter="over">Po splatnosti</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:42px"></th>
+                <th>Číslo</th>
+                <th>Odběratel</th>
+                <th>Splatnost</th>
+                <th>Typ dokladu</th>
+                <th class="num">Částka</th>
+                <th>Stav</th>
+                <th style="width:120px"></th>
+              </tr>
+            </thead>
+            <tbody id="invoiceRows"><!-- JS --></tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================== EDITOR VIEW ====================== -->
+      <section class="view" id="view-editor">
+        <a class="crumb" data-go="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Zpět na přehled
+        </a>
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">Nová faktura</h1>
+            <p class="page-sub">Faktura <b id="invNumLabel">2026-0006</b> · průběžně ukládáme jako návrh</p>
+          </div>
+        </div>
+
+        <div class="editor">
+          <div class="editor-main">
+
+            <!-- Základní údaje -->
+            <div class="card">
+              <div class="card-head">
+                <div class="card-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <div><h3>Základní údaje</h3><p>Druh, číslování a termíny dokladu</p></div>
+              </div>
+              <div class="card-body">
+                <div class="grid-2">
+                  <div class="field">
+                    <label>Druh faktury</label>
+                    <select class="inp">
+                      <option>Faktura bez DPH (nejsem plátce DPH)</option>
+                      <option>Faktura s DPH</option>
+                      <option>Zálohová faktura</option>
+                      <option>Proforma faktura</option>
+                    </select>
+                    <span class="hint">Nejste plátce DPH? Zvolte fakturu bez DPH.</span>
+                  </div>
+                  <div class="field">
+                    <label>Datum vystavení</label>
+                    <div class="inp-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <input class="inp" value="13. 06. 2026" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label>Číslo faktury</label>
+                    <input class="inp" id="invNumInput" value="2026-0006" />
+                    <span class="hint">Poslední: 2026-0005 · <a>Konstantní</a> nebo <a>Specifický symbol</a></span>
+                  </div>
+                  <div class="field">
+                    <label>Splatnost</label>
+                    <div class="inp-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <input class="inp" value="24. 06. 2026" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label>Variabilní symbol
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </label>
+                    <input class="inp" value="20260006" />
+                  </div>
+                  <div class="field">
+                    <label>Forma úhrady</label>
+                    <select class="inp">
+                      <option>Bankovní převod</option>
+                      <option>Hotově</option>
+                      <option>Platební kartou</option>
+                      <option>Dobírka</option>
+                    </select>
+                  </div>
+                  <div class="field full">
+                    <label>Vystavil</label>
+                    <input class="inp" value="Maksim Zaytsev" />
+                    <span class="hint">Zobrazí se v patičce všech vašich faktur.</span>
+                  </div>
+                </div>
+                <div class="note">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  Bankovní účet <b>2863409193/0800</b> — IBAN nevyplněno. Bankovní údaje se zobrazí na faktuře.
+                </div>
+              </div>
+            </div>
+
+            <!-- Obecné nastavení (collapsible) -->
+            <div class="card">
+              <div class="collapse-row" id="settingsToggle">
+                <div class="card-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </div>
+                <div><h3>Obecné nastavení</h3><p>Jazyk, měna, vzhled a další nastavení</p></div>
+                <div class="chev" id="settingsChev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div id="settingsBody" style="display:none;border-top:1px solid hsl(var(--border))">
+                <div class="card-body">
+                  <div class="grid-2">
+                    <div class="field"><label>Jazyk faktury</label><select class="inp"><option>Čeština</option><option>English</option><option>Deutsch</option></select></div>
+                    <div class="field"><label>Měna</label><select class="inp"><option>CZK — Kč</option><option>EUR — €</option><option>USD — $</option></select></div>
+                    <div class="field"><label>Zaokrouhlení</label><select class="inp"><option>Na celé koruny</option><option>Bez zaokrouhlení</option></select></div>
+                    <div class="field"><label>Barva dokladu</label><select class="inp"><option>Grafit</option><option>Indigo</option><option>Smaragd</option></select></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informace o vás -->
+            <div class="card">
+              <div class="info-block">
+                <div class="card-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="body">
+                  <div class="eyebrow">Dodavatel</div>
+                  <div class="name">Maksim Zaytsev · IČO 04962311</div>
+                  <div class="lines">
+                    Michalovice 197, 293 01, Mladá Boleslav<br>
+                    E-mail: <a>Zadat e-mail</a> · Telefon: <a>Zadat telefon</a> · Web: <a>Zadat web</a>
+                  </div>
+                </div>
+                <a class="edit">Upravit</a>
+              </div>
+            </div>
+
+            <!-- Váš zákazník -->
+            <div class="card">
+              <div class="info-block">
+                <div class="card-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                </div>
+                <div class="client-search">
+                  <input class="inp" placeholder="Zadejte jméno, název nebo IČO — zbytek dohledáme" />
+                  <button class="magic" title="Automaticky dohledat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z"/></svg>
+                  </button>
+                </div>
+                <a class="edit">Zadám ručně</a>
+              </div>
+            </div>
+
+            <!-- Položky faktury -->
+            <div class="card">
+              <div class="card-head">
+                <div class="card-ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </div>
+                <div><h3>Položky faktury</h3><p>Co fakturujete — ceny počítáme automaticky</p></div>
+              </div>
+              <div class="card-body">
+                <div class="items-head">
+                  <div>Počet</div><div>M.J.</div><div>Popis</div>
+                  <div class="r">Cena</div><div class="r">Celkem</div><div></div>
+                </div>
+                <div id="lineItems"><!-- JS --></div>
+                <div class="add-row">
+                  <button class="add-link" id="addItem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Přidat položku
+                  </button>
+                  <button class="add-link subtle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Vybrat z uložených
+                  </button>
+                  <button class="add-link subtle" id="discountBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+                    Sleva na fakturu
+                  </button>
+                </div>
+
+                <div class="totals" id="totalsBox">
+                  <div class="row"><span>Mezisoučet</span><span class="val" id="subtotal">0,00 Kč</span></div>
+                  <div class="row" id="discountRow" style="display:none"><span>Sleva (10 %)</span><span class="val" id="discountVal">−0,00 Kč</span></div>
+                  <div class="row"><span>Celkem bez DPH</span><span class="val" id="totalNoVat">0,00 Kč</span></div>
+                  <div class="row grand"><span class="lbl">Celkem s DPH</span><span class="val" id="grandTotal">0,00 Kč</span></div>
+                </div>
+
+                <div style="margin-top:14px">
+                  <button class="add-link subtle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Přidat poznámku
+                  </button>
+                </div>
+              </div>
+              <div class="switch-row">
+                <div class="switch" id="recurSwitch"></div>
+                <div class="txt"><b>Pravidelně fakturovat</b><span>Automaticky vytvářet tuto fakturu každý měsíc</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ASIDE -->
+          <aside class="aside">
+            <div class="preview-card">
+              <div class="preview-doc">
+                <div class="pd-top">
+                  <div class="pd-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                  <div class="pd-tag">Faktura<b id="pvNum">2026-0006</b></div>
+                </div>
+                <div class="pd-row"><span>Dodavatel</span><b>M. Zaytsev</b></div>
+                <div class="pd-row"><span>Odběratel</span><b id="pvClient">— nevyplněno —</b></div>
+                <div class="pd-row"><span>Vystaveno</span><b>13. 06. 2026</b></div>
+                <div class="pd-row"><span>Splatnost</span><b>24. 06. 2026</b></div>
+                <div class="pd-line"></div>
+                <div class="pd-row"><span>Položek</span><b id="pvItems">2</b></div>
+                <div class="pd-grand"><span style="color:hsl(var(--muted-foreground));font-size:12px;font-weight:500">K úhradě</span><span class="g" id="pvTotal">0,00 Kč</span></div>
+              </div>
+              <div class="score">
+                <div class="top"><span>Připravenost faktury</span><span id="scorePct">75 %</span></div>
+                <div class="bar"><span id="scoreBar"></span></div>
+                <div class="items">
+                  <div class="it"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>Základní údaje vyplněny</div>
+                  <div class="it"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>Položky přidány</div>
+                  <div class="it"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>Bankovní účet nastaven</div>
+                  <div class="it todo" id="clientCheck"><span class="tick"></span>Doplňte odběratele</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- sticky action bar -->
+        <div class="action-bar">
+          <div class="total-inline"><span>K úhradě s DPH</span><b id="barTotal">0,00 Kč</b></div>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Náhled
+          </button>
+          <button class="btn btn-secondary" id="saveDraft">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Uložit návrh
+          </button>
+          <button class="btn btn-outline" id="issueSend">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Vystavit a odeslat
+          </button>
+          <button class="btn btn-primary" id="issueDownload">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Vystavit a stáhnout
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================ helpers */
+const $=(s,c=document)=>c.querySelector(s);
+const $$=(s,c=document)=>[...c.querySelectorAll(s)];
+const fmt=n=>new Intl.NumberFormat('cs-CZ',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const fmtInt=n=>new Intl.NumberFormat('cs-CZ').format(Math.round(n));
+
+/* ============================================================ navigation */
+function go(view){
+  $$('.view').forEach(v=>v.classList.remove('active'));
+  $('#view-'+view).classList.add('active');
+  $$('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(view==='dashboard') $$('.nav-item')[1].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  $('#sidebar').classList.remove('open');
+}
+$$('[data-go]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();go(el.dataset.go)}));
+$('#menuToggle').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+
+/* ============================================================ theme */
+const themeBtn=$('#themeBtn');
+themeBtn.addEventListener('click',()=>{
+  const root=document.documentElement;
+  const dark=root.classList.toggle('dark');
+  $('#themeIcon').outerHTML = !dark
+    ? '<svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>'
+    : '<svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+});
+
+/* ============================================================ count-up + donut */
+function countUp(el){
+  const to=+el.dataset.to; const dur=1200; const start=performance.now();
+  const ease=t=>1-Math.pow(1-t,3);
+  function tick(now){
+    const p=Math.min((now-start)/dur,1);
+    el.textContent=fmtInt(to*ease(p));
+    if(p<1)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+function animateDashboard(){
+  $$('.count-up').forEach(countUp);
+  setTimeout(()=>{ const seg=$('#donutSeg'); if(seg) seg.style.strokeDashoffset=314.2*(1-0.92); },250);
+}
+
+/* ============================================================ invoice data */
+const INVOICES=[
+  {num:'2026-0005',client:'R ALTRA spol. s r.o.',due:'15. 06. 2026',type:'Faktura bez DPH',amount:124339,status:'unpaid'},
+  {num:'2026-0004',client:'Nordic Design Studio',due:'02. 06. 2026',type:'Faktura s DPH',amount:86500,status:'paid'},
+  {num:'2026-0003',client:'Brno Tech s.r.o.',due:'28. 05. 2026',type:'Faktura bez DPH',amount:45200,status:'paid'},
+  {num:'2026-0002',client:'Atelier Vlna',due:'10. 05. 2026',type:'Zálohová faktura',amount:18900,status:'over'},
+  {num:'2026-0001',client:'GreenField Farms',due:'30. 04. 2026',type:'Faktura s DPH',amount:212450,status:'paid'},
+  {num:'2025-0098',client:'Studio Kontrast',due:'22. 04. 2026',type:'Faktura bez DPH',amount:33700,status:'paid'},
+  {num:'2025-0097',client:'Praha Bistro a.s.',due:'14. 04. 2026',type:'Faktura s DPH',amount:9650,status:'draft'},
+];
+const STATUS_META={
+  paid:{cls:'s-paid',label:'Zaplaceno'},
+  draft:{cls:'s-draft',label:'Návrh'},
+  unpaid:{cls:'s-unpaid',label:'Nezaplaceno'},
+  over:{cls:'s-over',label:'Po splatnosti'},
+};
+const docIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+const raIcons={
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>',
+};
+function renderInvoices(filter='all'){
+  const tb=$('#invoiceRows'); tb.innerHTML='';
+  const list=INVOICES.filter(i=>filter==='all'||i.status===filter);
+  list.forEach((inv,i)=>{
+    const m=STATUS_META[inv.status];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="cb row-cb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span></td>
+      <td><a class="inv-num"><span class="doc">${docIcon}</span>${inv.num}</a></td>
+      <td class="client">${inv.client}</td>
+      <td class="muted">${inv.due}</td>
+      <td class="muted">${inv.type}</td>
+      <td class="amt">${fmt(inv.amount)} Kč</td>
+      <td><span class="status ${m.cls}"><span class="ic"></span>${m.label}</span></td>
+      <td><div class="row-actions">
+        <button class="ra" title="Upravit" data-act="edit">${raIcons.edit}</button>
+        <button class="ra" title="Duplikovat">${raIcons.copy}</button>
+        <button class="ra" title="Odeslat">${raIcons.send}</button>
+        <button class="ra" title="Stáhnout">${raIcons.dl}</button>
+        <button class="ra danger" title="Smazat">${raIcons.del}</button>
+      </div></td>`;
+    tr.addEventListener('click',e=>{
+      if(e.target.closest('.row-cb')){toggleCb(e.target.closest('.row-cb'));e.stopPropagation();return;}
+      if(e.target.closest('[data-act="edit"]')||e.target.closest('.inv-num')){go('editor');return;}
+      if(e.target.closest('.ra')){toast('Akce provedena');e.stopPropagation();return;}
+      go('editor');
+    });
+    tb.appendChild(tr);
+  });
+}
+function toggleCb(cb){cb.classList.toggle('on')}
+$$('#statusSeg button').forEach(b=>b.addEventListener('click',()=>{
+  $$('#statusSeg button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  renderInvoices(b.dataset.filter);
+}));
+$('#selectAll').addEventListener('click',()=>{
+  const all=$('#cbAll'); all.classList.toggle('on');
+  $$('.row-cb').forEach(c=>all.classList.contains('on')?c.classList.add('on'):c.classList.remove('on'));
+});
+
+/* ============================================================ line items */
+let items=[
+  {qty:1,unit:'ks',desc:'Návrh a vývoj webové prezentace',price:42000},
+  {qty:8,unit:'hod',desc:'Konzultace a UX úpravy',price:1500},
+];
+let discount=false;
+function renderItems(){
+  const box=$('#lineItems'); box.innerHTML='';
+  items.forEach((it,idx)=>{
+    const row=document.createElement('div');
+    row.className='line-item';
+    row.innerHTML=`
+      <div class="qty-stepper">
+        <button data-step="-1">−</button>
+        <input type="text" value="${it.qty}" data-f="qty">
+        <button data-step="1">+</button>
+      </div>
+      <input class="inp" value="${it.unit}" data-f="unit">
+      <input class="inp" value="${it.desc}" data-f="desc" placeholder="Popis položky">
+      <input class="inp" value="${fmt(it.price)}" data-f="price" style="text-align:right">
+      <div class="li-total">${fmt(it.qty*it.price)} Kč</div>
+      <button class="li-del" title="Odebrat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>`;
+    row.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{
+      it.qty=Math.max(0,it.qty+(+b.dataset.step)); renderItems();
+    }));
+    row.querySelectorAll('[data-f]').forEach(inp=>inp.addEventListener('input',()=>{
+      const f=inp.dataset.f;
+      if(f==='qty')it.qty=parseFloat(inp.value.replace(',','.'))||0;
+      else if(f==='price')it.price=parseFloat(inp.value.replace(/\s/g,'').replace(',','.'))||0;
+      else it[f]=inp.value;
+      if(f==='qty'||f==='price'){
+        row.querySelector('.li-total').textContent=fmt(it.qty*it.price)+' Kč';
+        row.querySelector('.li-total').classList.remove('flash');void row.querySelector('.li-total').offsetWidth;
+        row.querySelector('.li-total').classList.add('flash');
+        updateTotals();
+      }
+    }));
+    row.querySelector('.li-del').addEventListener('click',()=>{items.splice(idx,1);renderItems();});
+    box.appendChild(row);
+  });
+  updateTotals();
+}
+function updateTotals(){
+  const sub=items.reduce((s,it)=>s+it.qty*it.price,0);
+  const disc=discount?sub*0.1:0;
+  const noVat=sub-disc;
+  const grand=noVat;
+  $('#subtotal').textContent=fmt(sub)+' Kč';
+  $('#totalNoVat').textContent=fmt(noVat)+' Kč';
+  $('#discountVal').textContent='−'+fmt(disc)+' Kč';
+  setGrand($('#grandTotal'),grand);
+  $('#pvTotal').textContent=fmt(grand)+' Kč';
+  $('#barTotal').textContent=fmt(grand)+' Kč';
+  $('#pvItems').textContent=items.length;
+}
+function setGrand(el,v){el.textContent=fmt(v)+' Kč';el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
+$('#addItem').addEventListener('click',()=>{items.push({qty:1,unit:'ks',desc:'',price:0});renderItems();
+  setTimeout(()=>{const inputs=$$('#lineItems [data-f="desc"]');inputs[inputs.length-1]?.focus();},50);});
+$('#discountBtn').addEventListener('click',function(){
+  discount=!discount;
+  $('#discountRow').style.display=discount?'flex':'none';
+  this.style.color=discount?'hsl(var(--foreground))':'';
+  this.style.background=discount?'hsl(var(--accent))':'';
+  updateTotals();
+});
+
+/* ============================================================ misc interactions */
+$('#settingsToggle').addEventListener('click',()=>{
+  const body=$('#settingsBody'),chev=$('#settingsChev');
+  const open=body.style.display!=='none';
+  body.style.display=open?'none':'block';
+  chev.style.transform=open?'rotate(0)':'rotate(180deg)';
+});
+$('#recurSwitch').addEventListener('click',function(){this.classList.toggle('on');});
+const invInput=$('#invNumInput');
+invInput.addEventListener('input',()=>{$('#pvNum').textContent=invInput.value;$('#invNumLabel').textContent=invInput.value;});
+const clientInput=$('.client-search .inp');
+clientInput.addEventListener('input',()=>{
+  const v=clientInput.value.trim();
+  $('#pvClient').textContent=v||'— nevyplněno —';
+  const check=$('#clientCheck');
+  if(v){check.classList.remove('todo');check.querySelector('.tick').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';setScore(100);}
+  else{check.classList.add('todo');check.querySelector('.tick').innerHTML='';setScore(75);}
+});
+$('.magic').addEventListener('click',()=>{
+  if(!clientInput.value.trim()){clientInput.value='ČEZ a.s.';}
+  clientInput.dispatchEvent(new Event('input'));
+  toast('Údaje odběratele dohledány z rejstříku');
+});
+function setScore(pct){$('#scoreBar').style.width=pct+'%';$('#scorePct').textContent=pct+' %';}
+
+/* ============================================================ toast */
+function toast(msg){
+  const wrap=$('#toastWrap');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></span>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300);},2600);
+}
+$('#saveDraft').addEventListener('click',()=>toast('Návrh faktury uložen'));
+$('#issueSend').addEventListener('click',()=>toast('Faktura vystavena a odeslána e-mailem'));
+$('#issueDownload').addEventListener('click',()=>toast('Faktura vystavena · PDF se stahuje'));
+
+/* ============================================================ init */
+renderInvoices();
+renderItems();
+animateDashboard();
+setTimeout(()=>setScore(75),400);
+
+const dashObserver=new MutationObserver(()=>{
+  if($('#view-dashboard').classList.contains('active')) animateDashboard();
+});
+dashObserver.observe($('#view-dashboard'),{attributes:true,attributeFilter:['class']});
+</script>
+</body>
+</html>

@@ -1,34 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DejFakturu
 
-## Getting Started
+Webova fakturacni aplikace pro zivnostniky a male firmy. Marketingova stranka
+umi vygenerovat jednoduchou PDF fakturu bez uctu; prihlasena cast postupne
+pokryje dashboard, faktury, zakazniky a vlastni fakturacni udaje.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- shadcn/ui 4
+- PostgreSQL
+- Prisma 7 s `@prisma/adapter-pg`
+- `pdf-lib` pro serverove generovani PDF
+
+## Struktura
+
+- `src/app/(marketing)` - verejna landing page a rychly PDF generator
+- `src/app/(auth)` - login a registrace
+- `src/app/(app)` - prihlasena aplikace
+- `src/app/api/public-invoice/pdf` - PDF endpoint pro faktury bez ulozeni do DB
+- `src/components/ui` - shadcn komponenty
+- `src/components/invoices` - fakturacni UI
+- `src/lib/domain` - domenova validace a vypocty
+- `src/lib/db` - Prisma klient
+- `prisma/schema.prisma` - datovy model
+- `design/index-shadcn.html` - puvodni navrh jako reference
+
+## Lokální spuštění
 
 ```bash
+npm install
+cp .env.example .env
+npm run db:generate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aplikace bezi na `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Databáze
 
-## Learn More
+Vychozi volba je PostgreSQL. Pred prvni migraci nastavte `DATABASE_URL` v `.env`.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:migrate
+npm run db:studio
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Schema uz pocita s:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- vice organizacemi na uzivatele,
+- rolemi v organizaci,
+- zakazniky,
+- fakturami a polozkami,
+- ciselnymi radami,
+- Auth.js-kompatibilnimi tabulkami pro budouci prihlasovani.
 
-## Deploy on Vercel
+## Kontroly
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npm audit
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Aktualni stable Next.js a Prisma mohou v `npm audit` hlasit moderate zavislosti,
+kde `npm audit fix --force` navrhuje downgrade na starsi major verze. Force fix
+nepoustet bez rucni kontroly, protoze by sel proti cilene aktualni platforme.
+
+## Další kroky
+
+1. Napojit login/registraci na zvolene auth reseni.
+2. Nahradit mock data v `src/lib/mock-data.ts` dotazy pres Prisma.
+3. Rozdelit ulozeni faktury, vystaveni a PDF export na server actions/API.
+4. Dodelat CRUD zakazniku a vlastnich udaju.
+5. Pripravit produkcni PDF sablonu a uloziste pro vygenerovane dokumenty.
