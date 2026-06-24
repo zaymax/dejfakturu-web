@@ -5,14 +5,18 @@ import { usePathname } from "next/navigation";
 import {
   Bell,
   Building2,
+  CircleDollarSign,
+  Download,
   FileText,
   Home,
   Menu,
+  Moon,
   Plus,
   Search,
   Settings,
   Users,
 } from "lucide-react";
+import { useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +33,8 @@ const navItems = [
   { href: "/dashboard", label: "Přehled", icon: Home },
   { href: "/faktury", label: "Faktury", icon: FileText, badge: "92" },
   { href: "/zakaznici", label: "Zákazníci", icon: Users },
+  { href: "/exporty", label: "Exporty", icon: Download },
+  { href: "/vydaje", label: "Výdaje", icon: CircleDollarSign },
   { href: "/muj-ucet", label: "Můj účet", icon: Settings },
 ];
 
@@ -105,6 +111,19 @@ function Sidebar() {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const saved = window.localStorage.getItem("dejfakturu-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldUseDark = saved ? saved === "dark" : prefersDark;
+    document.documentElement.classList.toggle("dark", shouldUseDark);
+  }, []);
+
+  function toggleTheme() {
+    const next = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", next);
+    window.localStorage.setItem("dejfakturu-theme", next ? "dark" : "light");
+  }
+
   return (
     <div className="min-h-screen bg-background md:flex">
       <Sidebar />
@@ -131,13 +150,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="relative hidden w-full max-w-sm sm:block">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="h-9 pl-8"
+              className="h-9 pl-8 pr-12"
               placeholder="Hledat fakturu, zákazníka, částku"
             />
+            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              ⌘K
+            </span>
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <Button size="icon" variant="outline">
+            <Button onClick={toggleTheme} size="icon" type="button" variant="outline">
+              <Moon className="size-4" />
+              <span className="sr-only">Přepnout motiv</span>
+            </Button>
+            <Button className="relative" size="icon" variant="outline">
+              <span className="absolute right-2 top-2 size-2 rounded-full bg-destructive ring-2 ring-background" />
               <Bell className="size-4" />
               <span className="sr-only">Oznámení</span>
             </Button>
