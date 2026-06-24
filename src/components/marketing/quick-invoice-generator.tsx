@@ -158,7 +158,7 @@ export function QuickInvoiceGenerator() {
         <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center">
           <div>
             <div className="text-sm text-muted-foreground">K úhradě</div>
-            <div className="text-2xl font-semibold">{formatCurrency(total)}</div>
+            <div className="font-mono text-2xl font-semibold tabular-nums">{formatCurrency(total)}</div>
           </div>
           <Button className="sm:ml-auto" disabled={isPending} onClick={submit}>
             {isPending ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}

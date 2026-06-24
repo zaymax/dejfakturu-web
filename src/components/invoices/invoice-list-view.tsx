@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { dashboardStats, invoices, statusLabels, type InvoiceStatus } from "@/lib/mock-data";
+import { dashboardStats, invoices } from "@/lib/mock-data";
 import { formatCurrency, percentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -48,37 +48,26 @@ const statCards = [
     label: "Zaplaceno",
     value: dashboardStats.paidCents,
     meta: "81 faktur",
-    tone: "text-emerald-600",
   },
   {
     icon: Edit3,
     label: "Návrh",
     value: dashboardStats.draftCents,
     meta: "8 faktur čeká na vystavení",
-    tone: "text-blue-600",
   },
   {
     icon: Clock,
     label: "Nezaplaceno",
     value: dashboardStats.issuedCents,
     meta: "1 faktura do splatnosti",
-    tone: "text-amber-600",
   },
   {
     icon: CircleAlert,
     label: "Po splatnosti",
     value: dashboardStats.overdueCents,
     meta: "vyžaduje pozornost",
-    tone: "text-red-600",
   },
 ];
-
-function statusVariant(status: InvoiceStatus) {
-  if (status === "overdue") return "destructive";
-  if (status === "paid") return "default";
-  if (status === "draft") return "secondary";
-  return "outline";
-}
 
 export function InvoiceListView() {
   const [filter, setFilter] = useState<FilterValue>("all");
@@ -143,17 +132,17 @@ export function InvoiceListView() {
             <div className="text-sm font-medium text-muted-foreground">
               Celkem vyfakturováno
             </div>
-            <div className="mt-1 text-3xl font-semibold tabular-nums">
+            <div className="mt-1 font-mono text-3xl font-semibold tabular-nums">
               {formatCurrency(dashboardStats.totalCents)}
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
               {dashboardStats.invoiceCount} faktur · {percentage(dashboardStats.paidOnTimeRatio)} uhrazeno včas
             </div>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
-              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-emerald-500" />Zaplaceno <b className="text-foreground">{formatCurrency(dashboardStats.paidCents)}</b></span>
-              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-blue-500" />Návrh <b className="text-foreground">{formatCurrency(dashboardStats.draftCents)}</b></span>
-              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-amber-500" />Nezaplaceno <b className="text-foreground">{formatCurrency(dashboardStats.issuedCents)}</b></span>
-              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-red-500" />Po splatnosti <b className="text-foreground">{formatCurrency(dashboardStats.overdueCents)}</b></span>
+              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-success" />Zaplaceno <b className="font-mono text-foreground">{formatCurrency(dashboardStats.paidCents)}</b></span>
+              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-info" />Návrh <b className="font-mono text-foreground">{formatCurrency(dashboardStats.draftCents)}</b></span>
+              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-warning" />Nezaplaceno <b className="font-mono text-foreground">{formatCurrency(dashboardStats.issuedCents)}</b></span>
+              <span><span className="mr-1.5 inline-block size-2 rounded-sm bg-destructive" />Po splatnosti <b className="font-mono text-foreground">{formatCurrency(dashboardStats.overdueCents)}</b></span>
             </div>
           </div>
           <div className="relative grid size-32 place-items-center justify-self-start sm:justify-self-end">
@@ -169,11 +158,11 @@ export function InvoiceListView() {
                 strokeDashoffset={314.2 * (1 - dashboardStats.paidOnTimeRatio / 100)}
                 strokeLinecap="round"
                 strokeWidth="12"
-                className="text-emerald-500"
+                className="text-success"
               />
             </svg>
             <div className="text-center">
-              <div className="text-xl font-semibold">{percentage(dashboardStats.paidOnTimeRatio)}</div>
+              <div className="font-mono text-xl font-semibold">{percentage(dashboardStats.paidOnTimeRatio)}</div>
               <div className="text-xs text-muted-foreground">uhrazeno</div>
             </div>
           </div>
@@ -188,9 +177,9 @@ export function InvoiceListView() {
               <CardContent>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm text-muted-foreground">{stat.label}</span>
-                  <Icon className={cn("size-4", stat.tone)} />
+                  <Icon className="size-4 text-muted-foreground" />
                 </div>
-                <div className="mt-3 text-2xl font-semibold tabular-nums">
+                <div className="mt-3 font-mono text-2xl font-semibold tabular-nums">
                   {formatCurrency(stat.value)}
                 </div>
                 <div className="mt-1 text-sm text-muted-foreground">{stat.meta}</div>
@@ -288,7 +277,7 @@ export function InvoiceListView() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">
-                    <Link className="inline-flex items-center gap-2" href={`/faktury/${invoice.id}`}>
+                    <Link className="inline-flex items-center gap-2 font-mono text-[13px]" href={`/faktury/${invoice.id}`}>
                       <span className="flex size-7 items-center justify-center rounded-md border bg-muted/40">
                         <FileText className="size-3.5" />
                       </span>
@@ -298,13 +287,11 @@ export function InvoiceListView() {
                   <TableCell>{invoice.customer}</TableCell>
                   <TableCell className="text-muted-foreground">{invoice.dueDate}</TableCell>
                   <TableCell className="text-muted-foreground">{invoice.type}</TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell className="text-right font-mono font-semibold tabular-nums">
                     {formatCurrency(invoice.totalCents)}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={statusVariant(invoice.status)}>
-                      {statusLabels[invoice.status]}
-                    </Badge>
+                    <InvoiceStatusBadge status={invoice.status} />
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">

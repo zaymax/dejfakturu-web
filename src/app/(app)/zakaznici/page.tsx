@@ -51,7 +51,7 @@ export default function CustomersPage() {
                     <TableCell>{customer.ico}</TableCell>
                     <TableCell className="text-muted-foreground">{customer.email}</TableCell>
                     <TableCell className="text-muted-foreground">{customer.city}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right font-mono font-semibold tabular-nums">
                       {formatCurrency(customer.invoicedCents)}
                     </TableCell>
                   </TableRow>

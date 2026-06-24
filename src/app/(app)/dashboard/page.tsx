@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight, Clock, FileText, Plus, TriangleAlert } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { dashboardStats, invoices, statusLabels } from "@/lib/mock-data";
+import { dashboardStats, invoices } from "@/lib/mock-data";
 import { formatCurrency, percentage } from "@/lib/format";
 
 const statCards = [
@@ -56,16 +56,16 @@ export default function DashboardPage() {
         <CardContent className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
             <div className="text-sm text-muted-foreground">Celkem vyfakturováno</div>
-            <div className="mt-2 text-3xl font-semibold">
+            <div className="mt-2 font-mono text-3xl font-semibold tabular-nums">
               {formatCurrency(dashboardStats.totalCents)}
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
               {dashboardStats.invoiceCount} faktur · {percentage(dashboardStats.paidOnTimeRatio)} uhrazeno včas
             </div>
           </div>
-          <div className="grid size-28 place-items-center rounded-full border-8 border-emerald-500/20">
+          <div className="grid size-28 place-items-center rounded-full border-8 border-success-bg">
             <div className="text-center">
-              <div className="text-xl font-semibold">
+              <div className="font-mono text-xl font-semibold">
                 {percentage(dashboardStats.paidOnTimeRatio)}
               </div>
               <div className="text-xs text-muted-foreground">uhrazeno</div>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
                   <span className="text-sm text-muted-foreground">{stat.label}</span>
                   <Icon className="size-4 text-muted-foreground" />
                 </div>
-                <div className="mt-3 text-2xl font-semibold">
+                <div className="mt-3 font-mono text-2xl font-semibold tabular-nums">
                   {formatCurrency(stat.value)}
                 </div>
                 <div className="mt-1 text-sm text-muted-foreground">{stat.detail}</div>
@@ -105,12 +105,10 @@ export default function DashboardPage() {
                 className="grid gap-2 py-3 sm:grid-cols-[120px_1fr_130px_120px] sm:items-center"
                 href={`/faktury/${invoice.id}`}
               >
-                <span className="font-medium">{invoice.number}</span>
+                <span className="font-mono text-[13px] font-medium">{invoice.number}</span>
                 <span className="text-sm text-muted-foreground">{invoice.customer}</span>
-                <span className="text-sm">{formatCurrency(invoice.totalCents)}</span>
-                <Badge className="justify-self-start" variant={invoice.status === "overdue" ? "destructive" : "outline"}>
-                  {statusLabels[invoice.status]}
-                </Badge>
+                <span className="font-mono text-sm font-semibold tabular-nums">{formatCurrency(invoice.totalCents)}</span>
+                <InvoiceStatusBadge className="justify-self-start" status={invoice.status} />
               </Link>
               {index < 4 ? <Separator /> : null}
             </div>

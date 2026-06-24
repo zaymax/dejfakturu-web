@@ -97,7 +97,7 @@ function CheckItem({ checked, children }: { checked: boolean; children: React.Re
       <span
         className={cn(
           "flex size-5 items-center justify-center rounded-full border",
-          checked && "border-emerald-600 bg-emerald-600 text-white"
+          checked && "border-success/25 bg-success-bg text-success-fg"
         )}
       >
         {checked ? <Check className="size-3" /> : null}
@@ -488,7 +488,7 @@ export function InvoiceEditor({
                       type="number"
                       value={item.price}
                     />
-                    <div className="text-right font-medium tabular-nums">
+                    <div className="text-right font-mono font-medium tabular-nums">
                       {moneyFromCrowns(item.qty * item.price)}
                     </div>
                     <Button
@@ -527,22 +527,22 @@ export function InvoiceEditor({
               <div className="ml-auto grid w-full max-w-md gap-2 rounded-lg border p-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mezisoučet</span>
-                  <span className="font-medium tabular-nums">{moneyFromCrowns(subtotal)}</span>
+                  <span className="font-mono font-medium tabular-nums">{moneyFromCrowns(subtotal)}</span>
                 </div>
                 {discountEnabled ? (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Sleva (10 %)</span>
-                    <span className="font-medium tabular-nums">-{moneyFromCrowns(discount)}</span>
+                    <span className="font-mono font-medium tabular-nums">-{moneyFromCrowns(discount)}</span>
                   </div>
                 ) : null}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Celkem bez DPH</span>
-                  <span className="font-medium tabular-nums">{moneyFromCrowns(total)}</span>
+                  <span className="font-mono font-medium tabular-nums">{moneyFromCrowns(total)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-base font-semibold">
                   <span>Celkem s DPH</span>
-                  <span className="tabular-nums">{moneyFromCrowns(total)}</span>
+                  <span className="font-mono tabular-nums">{moneyFromCrowns(total)}</span>
                 </div>
               </div>
 
@@ -590,7 +590,7 @@ export function InvoiceEditor({
                   </span>
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground">Faktura</div>
-                    <div className="font-medium">{state.invoiceNumber}</div>
+                    <div className="font-mono font-medium">{state.invoiceNumber}</div>
                   </div>
                 </div>
                 <div className="mt-5 grid gap-2 text-sm">
@@ -617,7 +617,7 @@ export function InvoiceEditor({
                   </div>
                   <div className="mt-2 flex items-baseline justify-between gap-3">
                     <span className="text-xs font-medium text-muted-foreground">K úhradě</span>
-                    <span className="text-xl font-semibold tabular-nums">{moneyFromCrowns(total)}</span>
+                    <span className="font-mono text-xl font-semibold tabular-nums">{moneyFromCrowns(total)}</span>
                   </div>
                 </div>
               </div>
@@ -644,7 +644,7 @@ export function InvoiceEditor({
       <div className="sticky bottom-0 z-20 -mx-4 flex flex-col gap-3 border-t bg-background/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:px-6">
         <div>
           <div className="text-xs text-muted-foreground">K úhradě s DPH</div>
-          <div className="text-lg font-semibold tabular-nums">{moneyFromCrowns(total)}</div>
+          <div className="font-mono text-lg font-semibold tabular-nums">{moneyFromCrowns(total)}</div>
         </div>
         <div className="flex flex-wrap gap-2 sm:ml-auto">
           <Button type="button" variant="ghost">

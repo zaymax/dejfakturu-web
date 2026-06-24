@@ -14,6 +14,7 @@ import {
   Plus,
   Search,
   Settings,
+  Sun,
   Users,
 } from "lucide-react";
 import { useEffect } from "react";
@@ -113,8 +114,7 @@ function Sidebar() {
 export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = window.localStorage.getItem("dejfakturu-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark = saved ? saved === "dark" : prefersDark;
+    const shouldUseDark = saved === "dark";
     document.documentElement.classList.toggle("dark", shouldUseDark);
   }, []);
 
@@ -160,7 +160,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="ml-auto flex items-center gap-2">
             <Button onClick={toggleTheme} size="icon" type="button" variant="outline">
-              <Moon className="size-4" />
+              <Sun className="size-4 dark:hidden" />
+              <Moon className="hidden size-4 dark:block" />
               <span className="sr-only">Přepnout motiv</span>
             </Button>
             <Button className="relative" size="icon" variant="outline">
